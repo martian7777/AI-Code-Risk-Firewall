@@ -5,7 +5,7 @@ All notable changes to the **AI Code Risk Firewall** extension will be documente
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2026-05-30
+## [0.1.1] - 2026-05-30
 
 ### Added
 - **Inline Suppressions (`src/suppressions.ts`)**: Silencing false positives with comment directives (`risk-firewall-ignore-line`, `risk-firewall-ignore-next-line`, and `risk-firewall-ignore-file`) in any programming language. Comments can be scoped to specific rule IDs (e.g. `secret/openai-key`) or categories.

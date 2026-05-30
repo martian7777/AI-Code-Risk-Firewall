@@ -1,6 +1,6 @@
 # 🛡️ AI Code Risk Firewall
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg?style=flat-square)](https://github.com/martian7777/AI-Code-Risk-Firewall-/releases/tag/v0.1.0)
+[![Version](https://img.shields.io/badge/version-0.1.1-blue.svg?style=flat-square)](https://github.com/martian7777/AI-Code-Risk-Firewall-/releases/tag/v0.1.1)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
 [![VS Code](https://img.shields.io/badge/editor-VS%20Code%20%2F%20Antigravity-orange.svg?style=flat-square)](package.json)
 [![Security](https://img.shields.io/badge/security-local--first-success.svg?style=flat-square)](#-key-features)
@@ -139,7 +139,7 @@ You can customize the firewall behavior via your workspace `settings.json`:
 
 ## 📋 Release Notes
 
-### v0.1.0
+### v0.1.1
 
 Makes findings **actionable** — the firewall now helps you fix and dismiss risks, not just spot them.
 
