@@ -69,6 +69,20 @@ The firewall categorizes and reports vulnerabilities across several dimensions:
 <img width="594" height="128" alt="image" src="https://github.com/user-attachments/assets/7a197f2f-d761-4136-8fc5-f8b6b3d5c452" />
 
 
+## 🛒 Installation & Marketplace
+
+### In the Editor (VS Code / Antigravity / Cursor / VSCodium)
+Open the **Extensions** side panel in your editor and search for:
+* **`martian7777.ai-code-risk-firewall`** (the unique extension ID)
+* Or simply search: **`AI Code Risk Firewall`**
+
+### On the Web
+You can also view and install the extension directly from the public registries:
+* **VS Code Marketplace**: [https://marketplace.visualstudio.com/items?itemName=martian7777.ai-code-risk-firewall](https://marketplace.visualstudio.com/items?itemName=martian7777.ai-code-risk-firewall)
+* **Open VSX Registry**: [https://open-vsx.org/extension/martian7777/ai-code-risk-firewall](https://open-vsx.org/extension/martian7777/ai-code-risk-firewall)
+
+---
+
 ## 🛠️ Getting Started
 
 ### Local Setup
