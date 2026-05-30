@@ -2,7 +2,7 @@
   "name": "ai-code-risk-firewall",
   "displayName": "AI Code Risk Firewall",
   "description": "Catches security, secret, and auth risks in AI-generated code before you run, commit, or deploy. Watches changed files and warns in real time. Works in VS Code and Antigravity.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "martian7777",
   "license": "MIT",
   "engines": {
@@ -47,6 +47,11 @@
       {
         "command": "aiRiskFirewall.generateAgentRules",
         "title": "Risk Firewall: Generate Agent Security Rules",
+        "category": "Risk Firewall"
+      },
+      {
+        "command": "aiRiskFirewall.scanGitChanges",
+        "title": "Risk Firewall: Scan Git Changes (staged / uncommitted)",
         "category": "Risk Firewall"
       }
     ],

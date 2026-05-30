@@ -1,6 +1,6 @@
 # 🛡️ AI Code Risk Firewall
 
-[![Version](https://img.shields.io/badge/version-0.0.1-blue.svg?style=flat-square)](https://github.com/martian7777/AI-Code-Risk-Firewall-/releases/tag/v0.0.1)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg?style=flat-square)](https://github.com/martian7777/AI-Code-Risk-Firewall-/releases/tag/v0.1.0)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
 [![VS Code](https://img.shields.io/badge/editor-VS%20Code%20%2F%20Antigravity-orange.svg?style=flat-square)](package.json)
 [![Security](https://img.shields.io/badge/security-local--first-success.svg?style=flat-square)](#-key-features)
@@ -19,6 +19,9 @@ Unlike heavy enterprise scanners, this is a sharp, change-focused **firewall**: 
 * **📋 Interactive Risk Report** — A rich side-panel webview grouping findings by severity with click-to-reveal jump-to-line navigation.
 * **🤖 Agent Rules Generator** — Automatically generates agent instructions (`.cursorrules`, `.antigravityrules`, `CLAUDE.md`, `AGENTS.md`, or `.github/copilot-instructions.md`) derived from the active firewall rules to stop agents from writing vulnerable code in the first place.
 * **📦 Dependency Diff Watcher** — Inspects manifests and lock files (`package.json`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`) for typosquats of popular packages, known compromised versions, and suspicious lifecycle install scripts.
+* **💡 One-Click Quick Fixes** — Every finding gets lightbulb actions: silence a false positive on a single line, mute a noisy rule for the whole file, or jump straight to the full report — no manual comment typing.
+* **🙈 Inline Suppressions** — Mark intentional code with ordinary comments the firewall reads back in: `risk-firewall-ignore-line`, `risk-firewall-ignore-next-line`, or `risk-firewall-ignore-file` (optionally scoped to specific rule ids). Works in any language.
+* **🔀 Scan Git Changes** — One command scans exactly what you're about to commit — your **staged** changes (or working-tree changes when nothing's staged) — so AI-written diffs get a security gate before they land.
 
 ---
 
@@ -101,8 +104,23 @@ You can also view and install the extension directly from the public registries:
 Access these via the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`):
 * `Risk Firewall: Scan Current File` — Run an immediate scan on the active editor and show report.
 * `Risk Firewall: Scan Whole Workspace` — Scan all project files (ignoring excluded paths) and compile a project-wide report.
+* `Risk Firewall: Scan Git Changes (staged / uncommitted)` — Scan only the files you're about to commit and report on them.
 * `Risk Firewall: Show Risk Report` — View the live report panel side-by-side with your code.
 * `Risk Firewall: Generate Agent Security Rules` — Create customized rules for AI coding assistants.
+
+### Suppressing False Positives
+The firewall is built for recall, so it occasionally flags intentional code. Silence a finding with a comment — use your language's comment syntax (`//`, `#`, `--`, …):
+
+```js
+const apiKey = process.env.OPENAI_KEY ?? "sk-localtestkeyonly"; // risk-firewall-ignore-line secret/openai-key
+
+// risk-firewall-ignore-next-line
+eval(trustedExpression);
+```
+
+* Append no rule id to silence **every** finding at that location, or list one or more ids/categories (comma- or space-separated) to scope it: `risk-firewall-ignore-line secret, cors`.
+* Place `risk-firewall-ignore-file` anywhere in a file to mute matching rules for the whole file.
+* The easiest way to add these is the **lightbulb / Quick Fix menu** (`Ctrl+.`) on any flagged line — it writes the comment for you.
 
 ---
 
@@ -119,11 +137,21 @@ You can customize the firewall behavior via your workspace `settings.json`:
 
 ---
 
-## 📋 Release Notes: v0.0.1 (Initial Release)
+## 📋 Release Notes
+
+### v0.1.0
+
+Makes findings **actionable** — the firewall now helps you fix and dismiss risks, not just spot them.
+
+1. **One-Click Quick Fixes** — Lightbulb code actions (`Ctrl+.`) on any flagged line: silence a single false positive, mute a noisy rule for the whole file, or jump to the full report. The suppression comment is written for you with the correct comment syntax and indentation.
+2. **Inline Suppressions** — Honor `risk-firewall-ignore-line`, `risk-firewall-ignore-next-line`, and `risk-firewall-ignore-file` comments (optionally scoped to specific rule ids/categories) in any language. Suppressed findings drop out of diagnostics, the status-bar score, and the report.
+3. **Scan Git Changes** — New `Risk Firewall: Scan Git Changes` command scans exactly what you're about to commit (staged changes, or working-tree changes when nothing is staged) via the built-in Git API — no extra dependencies.
+
+### v0.0.1 (Initial Release)
 
 This is the first release of the **AI Code Risk Firewall** VS Code extension.
 
-### What's Implemented:
+#### What's Implemented:
 1. **Security & Secrets Linting Engine** — 30+ regex-based static analysis rules running locally in Node.js to capture high-severity leaks and common vulnerabilities.
 2. **Local Dependency Diff Watcher** — Offline manifest analysis in `package.json` and lock files checking for typosquats, flagged protestware/malware packages, and automatic install hooks.
 3. **Interactive Webview Risk Report** — A customized panel summarizing workspace/file health with a custom 0-100 risk score and direct code navigation links.

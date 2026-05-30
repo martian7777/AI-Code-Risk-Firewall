@@ -9,6 +9,8 @@ import { Severity } from "./rules";
 import { showReport } from "./report";
 import { isManifest } from "./dependencies";
 import { generateAgentRules } from "./agentRules";
+import { RiskFirewallCodeActions } from "./codeActions";
+import { scanGitChanges } from "./gitScan";
 
 let diagnostics: vscode.DiagnosticCollection;
 let statusBar: vscode.StatusBarItem;
@@ -179,6 +181,20 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.commands.registerCommand("aiRiskFirewall.generateAgentRules", () =>
       generateAgentRules()
+    ),
+    vscode.commands.registerCommand("aiRiskFirewall.scanGitChanges", () =>
+      scanGitChanges(diagnostics, minSeverity(), (findings, scope) =>
+        showReport(context, findings, scope)
+      )
+    )
+  );
+
+  // --- quick-fix lightbulbs for our diagnostics
+  context.subscriptions.push(
+    vscode.languages.registerCodeActionsProvider(
+      "*",
+      new RiskFirewallCodeActions(),
+      { providedCodeActionKinds: RiskFirewallCodeActions.providedKinds }
     )
   );
 

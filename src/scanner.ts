@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { RULES, Rule, Severity } from "./rules";
 import { isManifest, scanDependencies } from "./dependencies";
+import { collectSuppressions, isSuppressed } from "./suppressions";
 
 export interface Finding {
   rule: Rule;
@@ -57,6 +58,7 @@ export function scanDocument(
   const text = document.getText();
   const findings: Finding[] = [];
   const minOrder = SEVERITY_ORDER[minSeverity];
+  const suppressions = collectSuppressions(text);
 
   for (const rule of RULES) {
     if (SEVERITY_ORDER[rule.severity] < minOrder) {
@@ -76,12 +78,14 @@ export function scanDocument(
       const start = document.positionAt(match.index);
       const end = document.positionAt(match.index + match[0].length);
       const range = new vscode.Range(start, end);
-      findings.push({
-        rule,
-        range,
-        uri: document.uri,
-        lineText: document.lineAt(start.line).text.trim(),
-      });
+      if (!isSuppressed(suppressions, rule, start.line)) {
+        findings.push({
+          rule,
+          range,
+          uri: document.uri,
+          lineText: document.lineAt(start.line).text.trim(),
+        });
+      }
       // Guard against zero-width matches looping forever.
       if (match.index === re.lastIndex) {
         re.lastIndex++;
@@ -93,7 +97,10 @@ export function scanDocument(
   // typosquat / known-incident / install-script findings alongside the rules.
   if (isManifest(document)) {
     for (const f of scanDependencies(document)) {
-      if (SEVERITY_ORDER[f.rule.severity] >= minOrder) {
+      if (
+        SEVERITY_ORDER[f.rule.severity] >= minOrder &&
+        !isSuppressed(suppressions, f.rule, f.range.start.line)
+      ) {
         findings.push(f);
       }
     }
