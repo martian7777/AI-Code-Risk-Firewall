@@ -61,6 +61,14 @@ The firewall categorizes and reports vulnerabilities across several dimensions:
 
 ---
 
+## Walkthrough 
+
+
+<img width="1482" height="821" alt="image" src="https://github.com/user-attachments/assets/51e82dfb-1072-4ab6-ac1b-056c8409bc8d" />
+
+<img width="594" height="128" alt="image" src="https://github.com/user-attachments/assets/7a197f2f-d761-4136-8fc5-f8b6b3d5c452" />
+
+
 ## 🛠️ Getting Started
 
 ### Local Setup
