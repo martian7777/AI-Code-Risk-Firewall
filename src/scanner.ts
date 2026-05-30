@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { RULES, Rule, Severity } from "./rules";
+import { isManifest, scanDependencies } from "./dependencies";
 
 export interface Finding {
   rule: Rule;
@@ -87,6 +88,17 @@ export function scanDocument(
       }
     }
   }
+
+  // Dependency Diff Security Watcher: for manifest/lock files, layer in
+  // typosquat / known-incident / install-script findings alongside the rules.
+  if (isManifest(document)) {
+    for (const f of scanDependencies(document)) {
+      if (SEVERITY_ORDER[f.rule.severity] >= minOrder) {
+        findings.push(f);
+      }
+    }
+  }
+
   return findings;
 }
 

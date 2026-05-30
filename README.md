@@ -1,88 +1,115 @@
-# AI Code Risk Firewall
+# 🛡️ AI Code Risk Firewall
 
-Catches security, secret, and auth risks in AI-generated code **before you run, commit, or deploy**. It watches the files you (or your coding agent — Claude Code, Cursor, Copilot, Antigravity) change and warns you in real time, right in the editor.
+[![Version](https://img.shields.io/badge/version-0.0.1-blue.svg?style=flat-square)](https://github.com/martian7777/AI-Code-Risk-Firewall-/releases/tag/v0.0.1)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
+[![VS Code](https://img.shields.io/badge/editor-VS%20Code%20%2F%20Antigravity-orange.svg?style=flat-square)](package.json)
+[![Security](https://img.shields.io/badge/security-local--first-success.svg?style=flat-square)](#-key-features)
 
-This is not a full enterprise scanner. It is a sharp, change-focused *firewall*: fast, local, and offline.
+Catches security, secret, and authorization risks in AI-generated code **before you run, commit, or deploy**. It watches the files you or your coding agent (Claude Code, Cursor, Copilot, Antigravity) modify and warns you in real-time right inside the editor. 
 
-## What it does
+Unlike heavy enterprise scanners, this is a sharp, change-focused **firewall**: fast, runs entirely local, and operates completely offline.
 
-- **Live watcher** — scans the active file as you type (debounced) and on save/open.
-- **Inline diagnostics** — risky lines are underlined with a plain-English reason and a concrete fix.
-- **Risk score** — a 0–100 score per file in the status bar; click it for a full report.
-- **Risk report** — a panel grouping findings by severity with clickable jump-to-line.
-- **Workspace scan** — sweep the whole project on demand.
+---
 
-### Detected today (local regex/AST rules, no API key, no network)
+## 🚀 Key Features
 
-Secrets (AWS / OpenAI / Anthropic / Stripe / Google / GitHub / Slack keys, private keys, JWTs, generic credential assignments, `NEXT_PUBLIC_` secret exposure, Supabase service-role key in client code), wildcard CORS, `eval` / `new Function` / shell-exec interpolation, SQL string interpolation, `dangerouslySetInnerHTML` / `innerHTML` / `document.write`, weak hashes (MD5/SHA-1), `Math.random()` for tokens, hardcoded JWT secrets, disabled TLS verification (`rejectUnauthorized:false`, `verify=False`, `NODE_TLS_REJECT_UNAUTHORIZED=0`), insecure `http://` endpoints, debug mode, logging secrets, and tokens in `localStorage`.
+* **⚡ Real-Time Change Watcher** — Scans the active file as you type (debounced) and instantly on open or save.
+* **🔒 Privacy-First & Offline** — Runs 100% locally using regex/AST patterns. No code ever leaves your machine, and no API keys are required.
+* **📊 Live Risk Score** — Calculates a dynamic 0–100 risk score per file and displays it in the status bar (uses diminishing returns so multiple minor alerts don't outweigh a single critical severity issue).
+* **📋 Interactive Risk Report** — A rich side-panel webview grouping findings by severity with click-to-reveal jump-to-line navigation.
+* **🤖 Agent Rules Generator** — Automatically generates agent instructions (`.cursorrules`, `.antigravityrules`, `CLAUDE.md`, `AGENTS.md`, or `.github/copilot-instructions.md`) derived from the active firewall rules to stop agents from writing vulnerable code in the first place.
+* **📦 Dependency Diff Watcher** — Inspects manifests and lock files (`package.json`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`) for typosquats of popular packages, known compromised versions, and suspicious lifecycle install scripts.
 
-## Run it locally
+---
 
-```bash
-npm install
-npm run build
-```
+## 🔍 Security Rules & Detection Engine
 
-Then press **F5** (Run Extension) to open an Extension Development Host. Open `demo/vulnerable-sample.ts` to see every rule fire.
+The firewall categorizes and reports vulnerabilities across several dimensions:
 
-Commands (Command Palette):
+### 1. Hardcoded Secrets (`secret`)
+* **AWS access key IDs** (`AKIA...` / `ASIA...`) — [Critical]
+* **OpenAI API keys** (`sk-...`) — [Critical]
+* **Anthropic API keys** (`sk-ant-...`) — [Critical]
+* **Stripe secret/restricted keys** (`sk_live...` / `rk_test...`) — [Critical]
+* **Google API keys** (`AIza...`) — [High]
+* **GitHub tokens** (`ghp_...` / `gho_...`) — [Critical]
+* **Slack tokens** (`xoxb-...` / `xoxp-...`) — [High]
+* **Private Key blocks** (`BEGIN PGP/RSA/EC PRIVATE KEY`) — [Critical]
+* **JSON Web Tokens** (`eyJ...`) — [Medium]
+* **Generic assignments** (`api_key = "..."`, `password = "..."`) — [High]
+* **Frontend exposure** — Service role keys (`SERVICE_ROLE`) in frontend directories or secrets prefixed with `NEXT_PUBLIC_` — [Critical/High]
 
-- `Risk Firewall: Scan Current File`
-- `Risk Firewall: Scan Whole Workspace`
-- `Risk Firewall: Show Risk Report`
+### 2. Dependency Risk Guard (`dependency`)
+* **Typosquatting** — Checks if added packages are single-edit-distance typos of the top 50 most-used packages (e.g. `lodaash` instead of `lodash`). — [Critical]
+* **Compromised Packages** — Identifies packages tied to publicized supply-chain incidents (e.g. `event-stream` malicious versions, `node-ipc` protestware, `sabotaged colors/faker`). — [High]
+* **Lifecycle Install Scripts** — Flags `preinstall`, `install`, or `postinstall` commands in `package.json` that invoke shell, network, base64 decoding, or execution scripts. — [High/Medium]
 
-## Settings
+### 3. Attack & Injection Vectors
+* **Code Injection (`injection`)** — Use of `eval()`, `new Function()`, shell commands with string interpolation (`exec("...${var}")`), and Python `os.system()` or `shell=True` subprocesses. — [High]
+* **SQL Injection (`injection`)** — Assembled queries via interpolation or concatenation instead of parameterized queries. — [High]
+* **Cross-Site Scripting (`xss`)** — Use of `dangerouslySetInnerHTML`, `.innerHTML` assignments, and `document.write()`. — [High/Medium]
 
-| Setting | Default | Purpose |
-| --- | --- | --- |
-| `aiRiskFirewall.enable` | `true` | Master on/off. |
-| `aiRiskFirewall.scanOnType` | `true` | Re-scan while typing (else only on save/open). |
-| `aiRiskFirewall.minimumSeverity` | `low` | Report only at/above this severity. |
-| `aiRiskFirewall.excludeGlobs` | node_modules, dist, build, … | Skipped during workspace scans. |
+### 4. Encryption & Networks
+* **Weak Cryptography (`crypto`)** — Use of MD5 or SHA-1 for hashing, hardcoded JWT signing secrets, or `Math.random()` to generate security tokens. — [High/Medium]
+* **Disabled TLS (`network`)** — Bypassing server certificate verification (`rejectUnauthorized: false`, python `verify=False`, or setting `NODE_TLS_REJECT_UNAUTHORIZED=0`). — [High]
+* **Insecure Endpoints (`network`)** — Outbound remote requests utilizing plaintext `http://` instead of `https://`. — [Low]
 
-## Antigravity / fork compatibility
+### 5. Config & Logging (`config` / `auth`)
+* **Debug Mode** — Static debug switches (`DEBUG = true`) left active in production. — [Medium]
+* **Sensitive Logs** — Logging or printing secret variables (`console.log(password)`). — [Medium/Low]
+* **Session Storage (`auth`)** — Storing tokens/sessions in `localStorage` instead of Secure, httpOnly cookies. — [Medium]
 
-This is a standard VS Code extension and runs unmodified in **Antigravity** and other VS Code forks (Cursor, VSCodium, Windsurf):
+---
 
-- `engines.vscode` is pinned low (`^1.75.0`) so it never demands an API newer than the fork ships.
-- It uses only the stable, public `vscode` API — no proprietary Marketplace-only services.
-- Package it as a portable `.vsix` (`npm run package`) and install via **Install from VSIX…**, or publish to **Open VSX** (`npm run publish:ovsx`), which forks use instead of the MS Marketplace.
+## 🛠️ Getting Started
 
-## Package
+### Local Setup
+1. Clone the repository and install the development dependencies:
+   ```bash
+   npm install
+   ```
+2. Build the extension:
+   ```bash
+   npm run build
+   ```
+3. Open the repository in VS Code or Antigravity and press **F5** (or go to *Run and Debug* -> *Run Extension*).
+4. An **Extension Development Host** window will open. Open the `demo/vulnerable-sample.ts` file in that window to see the real-time firewall diagnostics in action!
 
-```bash
-npx vsce package          # produces ai-code-risk-firewall-0.1.0.vsix
-# or publish to Open VSX:
-npx ovsx publish
-```
+### Commands List
+Access these via the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`):
+* `Risk Firewall: Scan Current File` — Run an immediate scan on the active editor and show report.
+* `Risk Firewall: Scan Whole Workspace` — Scan all project files (ignoring excluded paths) and compile a project-wide report.
+* `Risk Firewall: Show Risk Report` — View the live report panel side-by-side with your code.
+* `Risk Firewall: Generate Agent Security Rules` — Create customized rules for AI coding assistants.
 
-## Add your own rule
+---
 
-Rules live in [`src/rules.ts`](src/rules.ts). Add an entry to the `RULES` array:
+## ⚙️ Configuration
 
-```ts
-{
-  id: "category/short-name",
-  title: "Human readable title",
-  category: "secret",        // secret | auth | cors | injection | xss | crypto | network | config
-  severity: "high",          // critical | high | medium | low
-  pattern: /your-regex/,
-  message: "Why this is risky.",
-  fix: "What to do instead.",
-  languages: ["typescript"], // optional: limit to language ids
-  filePattern: /client\//,   // optional: limit to file paths
-}
-```
+You can customize the firewall behavior via your workspace `settings.json`:
 
-## Roadmap
+| Setting | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `aiRiskFirewall.enable` | `boolean` | `true` | Enables/disables the real-time scanning engine. |
+| `aiRiskFirewall.scanOnType` | `boolean` | `true` | Re-scans files as you type (debounced). Set to `false` to scan only on save or open. |
+| `aiRiskFirewall.minimumSeverity` | `string` | `"low"` | Only report findings at or above this severity. Options: `low`, `medium`, `high`, `critical`. |
+| `aiRiskFirewall.excludeGlobs` | `string[]` | `["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**", "**/out/**"]` | Glob patterns to ignore during workspace scans. |
 
-- Secret leak guard (dedicated `.env` / frontend tracking)
-- Dependency diff (new packages, typosquats, install scripts)
-- Pre-commit risk gate
-- Framework-specific packs (Next.js, FastAPI, Express, Supabase)
-- Optional AI explanations + auto-fix prompt generation (Pro)
-- Agent rules generator (`CLAUDE.md`, `AGENTS.md`, `.cursor/rules`, Antigravity rules)
+---
 
-## License
+## 📋 Release Notes: v0.0.1 (Initial Release)
 
-MIT
+This is the first release of the **AI Code Risk Firewall** VS Code extension.
+
+### What's Implemented:
+1. **Security & Secrets Linting Engine** — 30+ regex-based static analysis rules running locally in Node.js to capture high-severity leaks and common vulnerabilities.
+2. **Local Dependency Diff Watcher** — Offline manifest analysis in `package.json` and lock files checking for typosquats, flagged protestware/malware packages, and automatic install hooks.
+3. **Interactive Webview Risk Report** — A customized panel summarizing workspace/file health with a custom 0-100 risk score and direct code navigation links.
+4. **Agent Rules Generator** — A generator targeting `.cursorrules`, `.antigravityrules`, `CLAUDE.md`, `AGENTS.md`, and `.github/copilot-instructions.md` to instruct AI models on security patterns automatically.
+5. **Debounced Live Watcher** — Seamless editor integrations utilizing diagnostics markers without slowing down typing or compiler performance.
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).

@@ -13,7 +13,8 @@ export type Category =
   | "xss"
   | "crypto"
   | "network"
-  | "config";
+  | "config"
+  | "dependency";
 
 export interface Rule {
   /** Stable id, shown as the diagnostic code. */

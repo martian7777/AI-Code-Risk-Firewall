@@ -7,6 +7,8 @@ import {
 } from "./scanner";
 import { Severity } from "./rules";
 import { showReport } from "./report";
+import { isManifest } from "./dependencies";
+import { generateAgentRules } from "./agentRules";
 
 let diagnostics: vscode.DiagnosticCollection;
 let statusBar: vscode.StatusBarItem;
@@ -27,7 +29,9 @@ function isScannable(document: vscode.TextDocument): boolean {
   if (document.uri.scheme !== "file") {
     return false;
   }
-  return SCANNABLE.test(document.uri.fsPath);
+  // Lock files like yarn.lock have no scannable extension but are watched by the
+  // Dependency Diff Security Watcher, so allow them through explicitly.
+  return SCANNABLE.test(document.uri.fsPath) || isManifest(document);
 }
 
 function scanAndReport(document: vscode.TextDocument): Finding[] {
@@ -101,7 +105,7 @@ async function scanWorkspace(
     },
     async (progress, token) => {
       const files = await vscode.workspace.findFiles(
-        "**/*.{js,jsx,ts,tsx,mjs,cjs,py,env,json,yml,yaml,tf,rb,go,php,java,cs,vue,svelte,astro,sh,ps1}",
+        "**/*.{js,jsx,ts,tsx,mjs,cjs,py,env,json,yml,yaml,tf,rb,go,php,java,cs,vue,svelte,astro,sh,ps1,lock}",
         exclude,
         4000
       );
@@ -172,7 +176,10 @@ export function activate(context: vscode.ExtensionContext): void {
           ? `Current file · ${vscode.workspace.asRelativePath(editor.document.uri)}`
           : "No active file"
       );
-    })
+    }),
+    vscode.commands.registerCommand("aiRiskFirewall.generateAgentRules", () =>
+      generateAgentRules()
+    )
   );
 
   // --- live watchers
