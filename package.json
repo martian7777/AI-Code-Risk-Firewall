@@ -1,0 +1,103 @@
+{
+  "name": "ai-code-risk-firewall",
+  "displayName": "AI Code Risk Firewall",
+  "description": "Catches security, secret, and auth risks in AI-generated code before you run, commit, or deploy. Watches changed files and warns in real time. Works in VS Code and Antigravity.",
+  "version": "0.1.0",
+  "publisher": "your-publisher-id",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "security",
+    "ai",
+    "secrets",
+    "antigravity",
+    "cursor"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-name/ai-code-risk-firewall"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "aiRiskFirewall.scanCurrentFile",
+        "title": "Risk Firewall: Scan Current File",
+        "category": "Risk Firewall"
+      },
+      {
+        "command": "aiRiskFirewall.scanWorkspace",
+        "title": "Risk Firewall: Scan Whole Workspace",
+        "category": "Risk Firewall"
+      },
+      {
+        "command": "aiRiskFirewall.showReport",
+        "title": "Risk Firewall: Show Risk Report",
+        "category": "Risk Firewall"
+      }
+    ],
+    "configuration": {
+      "title": "AI Code Risk Firewall",
+      "properties": {
+        "aiRiskFirewall.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable real-time risk scanning."
+        },
+        "aiRiskFirewall.scanOnType": {
+          "type": "boolean",
+          "default": true,
+          "description": "Re-scan a file as you type (debounced). Disable to scan only on save/open."
+        },
+        "aiRiskFirewall.minimumSeverity": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "default": "low",
+          "description": "Only report findings at or above this severity."
+        },
+        "aiRiskFirewall.excludeGlobs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/.git/**",
+            "**/out/**"
+          ],
+          "description": "Glob patterns to skip during workspace scans."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build -- --production",
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "compile": "tsc --noEmit",
+    "package": "vsce package",
+    "publish:ovsx": "ovsx publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.75.0",
+    "esbuild": "^0.20.2",
+    "typescript": "^5.4.0"
+  }
+}
