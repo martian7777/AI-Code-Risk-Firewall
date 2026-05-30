@@ -95,9 +95,11 @@
     "publish:ovsx": "ovsx publish"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.11.0",
     "@types/vscode": "^1.75.0",
     "esbuild": "^0.20.2",
+    "jsonwebtoken": "^9.0.3",
     "typescript": "^5.4.0"
   }
 }
